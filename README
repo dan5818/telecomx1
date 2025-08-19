@@ -1,1 +1,178 @@
+# 📡 Telecom X — Churn de Clientes  
+**De datos → insights → acciones de retención** ✨
 
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![Pandas](https://img.shields.io/badge/Pandas-DataFrames-150458)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-Gráficos-11557c)
+![Scikit--learn](https://img.shields.io/badge/Scikit--learn-ML-orange)
+![Status](https://img.shields.io/badge/Estado-Listo%20para%20EDA-green)
+
+> Proyecto didáctico y práctico para analizar la **evasión (churn)** en una telco.  
+> Extraemos datos desde una API/JSON, ejecutamos un ETL reproducible, auditamos calidad y realizamos un EDA enfocado en **segmentos de riesgo**.
+
+---
+
+## 🧭 Tabla de contenidos
+- [Objetivo](#-objetivo)
+- [Qué aprenderás](#-qué-aprenderás)
+- [Estructura](#-estructura)
+- [Datos](#-datos)
+- [Inicio rápido](#-inicio-rápido)
+- [Flujo de trabajo](#-flujo-de-trabajo)
+- [Visualizaciones y entregables](#-visualizaciones-y-entregables)
+- [Hallazgos esperados](#-hallazgos-esperados)
+- [Siguientes pasos (ML)](#-siguientes-pasos-ml)
+- [Tecnologías](#-tecnologías)
+- [Contribuir](#-contribuir)
+- [Créditos](#-créditos)
+
+---
+
+## 🎯 Objetivo
+**Reducir la tasa de cancelación** identificando patrones y variables clave (contrato, método de pago, cargos, antigüedad) para **priorizar acciones de retención** y dejar el dataset **listo para modelado**.
+
+---
+
+## 🧪 Qué aprenderás
+- Ingesta desde **API/JSON** directo a Pandas.
+- Construcción de un **pipeline ETL** reproducible (Extracción → Transformación → Carga).
+- **Auditoría de calidad** (NA, duplicados, rangos, dominios categóricos).
+- **EDA estratégico** con visualizaciones claras y comunicación de **insights**.
+- Base para **modelos de churn** (features, métricas y validación).
+
+---
+
+## 🗂 Estructura
+telecomx-churn/
+├── data/
+│ ├── raw/ # Datos crudos (API o simulados)
+│ └── processed/ # Datos limpios/listos
+├── reports/
+│ ├── figures/ # Imágenes del EDA
+│ └── eda_summary.md # Resumen de hallazgos
+├── src/
+│ ├── etl.py # Extracción/limpieza/feature engineering
+│ ├── eda.py # Visualizaciones y métricas de churn
+│ └── simulate_data.py # Generador de datos demo (si no hay API)
+├── requirements.txt
+└── README.md
+
+
+---
+
+## 📦 Datos
+- **Origen:** JSON accesible por URL (formato tipo Telco: `customer`, `phone`, `internet`, `account`).
+- **Objetivo:** `Churn` con valores `Yes/No` → se convierte a binaria **`Evasion` (1/0)**.
+- **Anidados:** Algunas columnas vienen como diccionarios y se **normalizan** (desanidan) para el análisis.
+- **Feature de negocio incluida:** `Costo_Diario = Charges.Monthly / 30`.
+
+> Si no tienes conectividad, usa `src/simulate_data.py` para generar un dataset de ejemplo en `data/raw/`.
+
+---
+
+## 🚀 Inicio rápido
+
+### Opción A — Google Colab
+1. Abre un cuaderno y monta tu repo/proyecto.  
+2. Instala dependencias:
+   ```bash
+   pip install -r requirements.txt
+
+
+Extrae desde API (opcional, define la URL RAW del JSON):
+
+import os
+os.environ["TELECOMX_API_URL"] = "https://raw.githubusercontent.com/<user>/<repo>/main/TelecomX_Data.json"
+!python src/etl.py --from-api
+
+
+Ejecuta el EDA:
+
+python src/eda.py
+
+Opción B — Local (VS Code / Jupyter)
+python -m venv .venv
+source .venv/bin/activate         # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python src/etl.py                 # o python src/etl.py --from-api
+python src/eda.py
+
+🔁 Flujo de trabajo
+
+FASE 1 — Extracción
+
+Carga de JSON → DataFrame, exploración de columnas y tipos.
+
+FASE 2 — Transformación
+
+Limpieza de Churn (eliminar vacíos) → binaria Evasion.
+
+Derivadas: Costo_Diario = Charges.Monthly / 30.
+
+Normalización de campos anidados (Cliente, Servicio_Internet, Cuenta).
+
+Renombrado de columnas a español para lectura clara.
+
+FASE 3 — Calidad de datos
+
+Revisión de NA, duplicados, tipos/rangos y dominios.
+
+Recomendaciones: imputación documentada, estandarización de Yes/No, límites de tenure, cargos ≥ 0, etc.
+
+FASE 4 — EDA
+
+Balance de Evasion.
+
+Evasión por Contrato, Método de pago, Género.
+
+Distribuciones de Antigüedad (tenure), Cargos Mensuales, Cargos Totales.
+
+(Opcional) Correlaciones numéricas.
+
+📊 Visualizaciones y entregables
+
+Barras: distribución global de Evasion (quién se queda vs. quién se va).
+
+Barras apiladas: churn por Contrato, Método de pago, Género.
+
+KDE/Histogramas: comparación de tenure, Charges.Monthly, Charges.Total por grupo.
+
+Carpeta reports/figures/ con imágenes exportadas.
+
+Resumen reports/eda_summary.md con los insights clave.
+
+🔎 Hallazgos esperados
+
+(Patrones frecuentes en telco que este análisis ayuda a confirmar/concretar):
+
+Mayor churn en Month-to-month vs. One/Two year.
+
+Electronic check suele concentrar más bajas que cobros automáticos.
+
+Tenure bajo y cargos mensuales altos se asocian a mayor riesgo.
+
+Servicios como TechSupport / OnlineSecurity correlacionan con menor evasión.
+
+🧠 Siguientes pasos (ML)
+
+Encoding de categóricas + escalado de numéricas.
+
+Modelos base: Regresión logística, Árboles, Gradient Boosting.
+
+Métricas: ROC-AUC, PR-AUC, Lift, calibración.
+
+Validación temporal si hay fechas de alta/cancelación.
+
+Generación de listas de alto riesgo para campañas de retención.
+
+🛠 Tecnologías
+
+Python 3.10+
+
+Pandas, NumPy
+
+Matplotlib (y/o Seaborn en notebooks)
+
+Scikit-learn (fase ML)
+
+Requests/JSON (ingesta desde API)
